@@ -298,182 +298,70 @@
         </div>
     </footer>
 
-    <script>
-        // Reveal Animations
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                }
-            });
-        }, { threshold: 0.15 });
-        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+   <script>
+    // 4K Frame Animation Logic
+    const canvas = document.getElementById('hero-canvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    const FRAME_COUNT = 96; 
+    const FRAME_PREFIX = 'ezgif-frame-';
+    const FRAME_EXT = '.jpg'; // Make sure your files are actually .jpg
 
-        // Glass Navbar & Scroll Spying
-        const nav = document.getElementById('main-nav');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                nav.style.background = 'rgba(8, 10, 15, 0.95)';
-                nav.classList.add('shadow-lg');
-            } else {
-                nav.style.background = 'rgba(8, 10, 15, 0.75)';
-                nav.classList.remove('shadow-lg');
-            }
-        });
+    const imgs = new Array(FRAME_COUNT).fill(null);
+    let currentFrame = 0;
 
-        // Custom Cinematic Smooth Scroll for Nav Links
-        function easeInOutCubic(t, b, c, d) {
-            t /= d / 2;
-            if (t < 1) return c / 2 * t * t * t + b;
-            t -= 2;
-            return c / 2 * (t * t * t + 2) + b;
-        }
+    function draw(idx) {
+        if(!imgs[idx]) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(imgs[idx], 0, 0, canvas.width, canvas.height);
+    }
 
-        let isProgrammaticScrolling = false;
+    function resizeCanvas() {
+        canvas.width = window.innerWidth * (window.devicePixelRatio || 1);
+        canvas.height = window.innerHeight * (window.devicePixelRatio || 1);
+        draw(currentFrame);
+    }
 
-        function smoothScrollTo(targetPosition, duration) {
-            isProgrammaticScrolling = true;
-            const startPosition = window.pageYOffset;
-            const distance = targetPosition - startPosition;
-            let startTime = null;
-
-            function animation(currentTime) {
-                if (startTime === null) startTime = currentTime;
-                const timeElapsed = currentTime - startTime;
-                const run = easeInOutCubic(timeElapsed, startPosition, distance, duration);
-                
-                window.scrollTo(0, run);
-                
-                if (timeElapsed < duration) {
-                    requestAnimationFrame(animation);
-                } else {
-                    window.scrollTo(0, targetPosition);
-                    setTimeout(() => {
-                        isProgrammaticScrolling = false;
-                        // Only render final frame if hero is still in view
-                        const sectionTop = heroSection.offsetTop;
-                        const scrollInHero = Math.max(0, window.scrollY - sectionTop);
-                        const animScrollLen = heroSection.offsetHeight - window.innerHeight;
-                        if (animScrollLen > 0 && window.scrollY < heroSection.offsetHeight) {
-                            const progress = Math.min(1, Math.max(0, scrollInHero / animScrollLen));
-                            currentFrame = Math.round(progress * (FRAME_COUNT - 1));
-                            draw(currentFrame);
-                        }
-                    }, 10);
-                }
-            }
-            requestAnimationFrame(animation);
-        }
-
-        document.querySelectorAll('a[href^="#"], .nav-link').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                let targetId = this.getAttribute('href') || this.getAttribute('data-section');
-                if(!targetId || targetId === '#') return;
-
-                const targetSection = document.getElementById(targetId.replace('#', ''));
-                if (targetSection) {
-                    const headerOffset = 90;
-                    const elementPosition = targetSection.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                    smoothScrollTo(offsetPosition, 200); 
-                }
-            });
-        });
-
-        // Highlight Active Nav Link
-        const observerOptions = { root: null, rootMargin: '-20% 0px -70% 0px', threshold: 0 };
-        const navObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
-                    const id = entry.target.getAttribute('id');
-                    const activeLinks = document.querySelectorAll(`.nav-link[href="#${id}"]`);
-                    activeLinks.forEach(link => link.classList.add('active'));
-                }
-            });
-        }, observerOptions);
-        document.querySelectorAll('section[id]').forEach(section => navObserver.observe(section));
-
-        // 4K Frame Animation Logic
-        const canvas = document.getElementById('hero-canvas');
-        const ctx    = canvas.getContext('2d');
-        const FRAME_COUNT  = 300;
-        const FRAME_DIR    = '../ezgif-4k/';
-        const FRAME_PREFIX = 'ezgif-frame-';
-        const FRAME_EXT    = '.png';
-
-        function pad(n) { return String(n).padStart(3, '0'); }
-
-        function resize() {
-            canvas.width = window.innerWidth * (window.devicePixelRatio || 1);
-            canvas.height = window.innerHeight * (window.devicePixelRatio || 1);
-            draw(currentFrame);
-        }
-
-        const frames = new Array(FRAME_COUNT);
-        let currentFrame = 0;
-
-        function loadFrame(i) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    frames[i] = img;
-                    resolve();
-                };
-                img.onerror = () => resolve();
-                img.src = FRAME_DIR + FRAME_PREFIX + pad(i + 1) + FRAME_EXT;
-            });
-        }
-
-        async function preload() {
-            await loadFrame(0);
-            draw(0);
-            for (let i = 1; i < FRAME_COUNT; i++) {
-                loadFrame(i);
-            }
-        }
-
-        function draw(idx) {
-            const img = frames[idx];
-            if (!img) return;
-
-            const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-            const dw = img.width * scale;
-            const dh = img.height * scale;
-            const dx = (canvas.width - dw) / 2;
-            const dy = (canvas.height - dh) / 2;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, dx, dy, dw, dh);
-        }
-
-        const heroSection = document.getElementById('hero-section');
-        window.addEventListener('scroll', () => {
-            if (isProgrammaticScrolling) return; // Skip updates during programmatic menu scroll
+    async function loadAllFrames() {
+        for (let i = 1; i <= FRAME_COUNT; i++) {
+            const img = new Image();
+            const fileName = PREFIX + String(i).padStart(3, '0') + FRAME_EXT;
             
-            // Only update and draw if the hero section is in view
-            if (window.scrollY > heroSection.offsetHeight) return;
+            // USE './' FOR RELATIVE PATH
+            img.src = './' + fileName; 
             
-            const sectionTop = heroSection.offsetTop;
-            const scrollInHero = Math.max(0, window.scrollY - sectionTop);
-            const animScrollLen = heroSection.offsetHeight - window.innerHeight;
+            img.onload = () => {
+                imgs[i-1] = img;
+                if (i === 1) draw(0); // Draw first frame when ready
+            };
             
-            if (animScrollLen > 0) {
-                const progress = Math.min(1, Math.max(0, scrollInHero / animScrollLen));
-                const frameIdx = Math.round(progress * (FRAME_COUNT - 1));
-                
-                if (frameIdx !== currentFrame) {
-                    currentFrame = frameIdx;
-                    requestAnimationFrame(() => draw(currentFrame));
-                }
-            }
-        }, { passive: true });
+            img.onerror = () => {
+                console.error("Failed to load image: " + fileName);
+            };
+        }
+    }
 
-        window.addEventListener('resize', resize);
+    const heroSection = document.getElementById('hero-section');
+    window.addEventListener('scroll', () => {
+        if (isProgrammaticScrolling) return;
         
-        resize();
-        preload();
-    </script>
+        const sectionTop = heroSection.offsetTop;
+        const scrollInHero = Math.max(0, window.scrollY - sectionTop);
+        const animScrollLen = heroSection.offsetHeight - window.innerHeight;
+        
+        if (animScrollLen > 0) {
+            const progress = Math.min(1, Math.max(0, scrollInHero / animScrollLen));
+            const frameIdx = Math.round(progress * (FRAME_COUNT - 1));
+            
+            if (frameIdx !== currentFrame) {
+                currentFrame = frameIdx;
+                requestAnimationFrame(() => draw(currentFrame));
+            }
+        }
+    }, { passive: true });
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    loadAllFrames();
+</script>
 </body>
 </html>
