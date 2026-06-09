@@ -39,7 +39,6 @@
             background-color: #080A0F;
             color: #FDFBF7;
             overflow-x: hidden;
-            /* Removed native scroll-behavior to use custom cinematic JS scroll */
         }
         
         /* Glass Navbar */
@@ -271,7 +270,7 @@
                     </div>
                 </div>
                 
-                <a href="https://www.google.com/maps/search/burger+cafe+Edinburgh/" target="_blank" class="block w-full h-64 bg-obsidian overflow-hidden group relative border border-white/5">
+                <a href="https://maps.google.com/?q=burger+restaurants+in+Edinburgh" target="_blank" class="block w-full h-64 bg-obsidian overflow-hidden group relative border border-white/5">
                     <div class="absolute inset-0 bg-gold/10 group-hover:bg-transparent transition-colors duration-500 z-10"></div>
                     <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=800&auto=format&fit=crop" alt="Edinburgh Map" class="w-full h-full object-cover grayscale opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
                     <div class="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -299,7 +298,7 @@
     </footer>
 
     <script>
-        // Reveal Animations
+        // Reveal Animations Configuration
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -309,7 +308,7 @@
         }, { threshold: 0.15 });
         document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 
-        // Glass Navbar & Scroll Spying
+        // Glass Navbar Effect
         const nav = document.getElementById('main-nav');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
@@ -321,7 +320,7 @@
             }
         });
 
-        // Custom Cinematic Smooth Scroll for Nav Links
+        // Cinematic Smooth Scroll Mechanics (Fixed Programmatic Clashing)
         function easeInOutCubic(t, b, c, d) {
             t /= d / 2;
             if (t < 1) return c / 2 * t * t * t + b;
@@ -350,7 +349,7 @@
                     window.scrollTo(0, targetPosition);
                     setTimeout(() => {
                         isProgrammaticScrolling = false;
-                        // Only render final frame if hero is still in view
+                        // Synchronize final frame exactly at target position
                         const sectionTop = heroSection.offsetTop;
                         const scrollInHero = Math.max(0, window.scrollY - sectionTop);
                         const animScrollLen = heroSection.offsetHeight - window.innerHeight;
@@ -359,16 +358,16 @@
                             currentFrame = Math.round(progress * (FRAME_COUNT - 1));
                             draw(currentFrame);
                         }
-                    }, 10);
+                    }, 50);
                 }
             }
             requestAnimationFrame(animation);
         }
 
-        document.querySelectorAll('a[href^="#"], .nav-link').forEach(anchor => {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
-                let targetId = this.getAttribute('href') || this.getAttribute('data-section');
+                let targetId = this.getAttribute('href');
                 if(!targetId || targetId === '#') return;
 
                 const targetSection = document.getElementById(targetId.replace('#', ''));
@@ -376,12 +375,12 @@
                     const headerOffset = 90;
                     const elementPosition = targetSection.getBoundingClientRect().top;
                     const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                    smoothScrollTo(offsetPosition, 200); 
+                    smoothScrollTo(offsetPosition, 1200); 
                 }
             });
         });
 
-        // Highlight Active Nav Link
+        // Highlight Active Link configuration
         const observerOptions = { root: null, rootMargin: '-20% 0px -70% 0px', threshold: 0 };
         const navObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -395,13 +394,15 @@
         }, observerOptions);
         document.querySelectorAll('section[id]').forEach(section => navObserver.observe(section));
 
-        // 4K Frame Animation Logic
+        // ─── 4K FIXED SCROLLING ENGINE (GITHUB PAGES READY) ───
         const canvas = document.getElementById('hero-canvas');
         const ctx    = canvas.getContext('2d');
-        const FRAME_COUNT  = 300;
-       const FRAME_DIR = './';
+        
+        // Settings configured to match your actual folder structure precisely
+        const FRAME_COUNT  = 300; 
+        const FRAME_DIR    = './'; // Point to root folder instead of parent directory
         const FRAME_PREFIX = 'ezgif-frame-';
-        const FRAME_EXT    = 'jpg';
+        const FRAME_EXT    = '.jpg'; // Correct asset extension signature
 
         function pad(n) { return String(n).padStart(3, '0'); }
 
@@ -421,14 +422,21 @@
                     frames[i] = img;
                     resolve();
                 };
-                img.onerror = () => resolve();
+                img.onerror = () => {
+                    console.error("Critical: Frame missing runtime load at path:", img.src);
+                    resolve();
+                };
+                // Prepend explicit current relative route context for cross-origin deployment
                 img.src = FRAME_DIR + FRAME_PREFIX + pad(i + 1) + FRAME_EXT;
             });
         }
 
         async function preload() {
+            // Guarantee immediate delivery of initial interactive point paint
             await loadFrame(0);
             draw(0);
+            
+            // Asynchronously load sequence assets completely onto pipeline memory
             for (let i = 1; i < FRAME_COUNT; i++) {
                 loadFrame(i);
             }
@@ -450,9 +458,7 @@
 
         const heroSection = document.getElementById('hero-section');
         window.addEventListener('scroll', () => {
-            if (isProgrammaticScrolling) return; // Skip updates during programmatic menu scroll
-            
-            // Only update and draw if the hero section is in view
+            if (isProgrammaticScrolling) return; // Prevent render frame locks while smooth shifting target
             if (window.scrollY > heroSection.offsetHeight) return;
             
             const sectionTop = heroSection.offsetTop;
@@ -472,6 +478,7 @@
 
         window.addEventListener('resize', resize);
         
+        // Initialize Core Graphics Engine pipeline
         resize();
         preload();
     </script>
