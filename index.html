@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-<head>
+<html lang="en"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tactix Presence | Edinburgh</title>
@@ -39,6 +38,7 @@
             background-color: #080A0F;
             color: #FDFBF7;
             overflow-x: hidden;
+            /* No native scroll behavior, total JS control now */
         }
         
         /* Glass Navbar */
@@ -103,22 +103,26 @@
 
     <section id="hero-section" style="height: calc(300vh); position: relative;">
         <div style="position: sticky; top: 0; height: 100vh; width: 100%; overflow: hidden; background: #080A0F;">
-            <canvas id="hero-canvas" class="absolute top-0 left-0 w-full h-full object-cover"></canvas>
+            <video id="hero-video" 
+                   src="Burger_assembly_slow_motion_202606071559.mp4" 
+                   class="absolute top-0 left-0 w-full h-full object-cover" 
+                   muted playsinline preload="auto" style="will-change: transform;">
+            </video>
             
             <div class="absolute inset-0 bg-gradient-to-b from-obsidian/60 via-obsidian/20 to-obsidian/90 pointer-events-none"></div>
             
             <div class="absolute inset-0 flex flex-col items-center justify-center text-center z-10 px-6">
-                <h1 class="font-serif text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-8 text-white">
+                <h1 class="font-serif text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-8">
                     Crafted for Perfection.<br/>
-                    <span class="italic text-transparent" style="-webkit-text-stroke: 1px #ffffff;">Digital Soul.</span>
+                    <span class="italic text-transparent" style="-webkit-text-stroke: 1px #D4AF37;">Digital Soul.</span>
                 </h1>
-                <a href="#philosophy-section" class="group relative px-10 py-4 overflow-hidden border border-white transition-all duration-500 text-white uppercase tracking-[0.2em] text-sm font-medium">
+                <a href="#philosophy-section" class="group relative px-10 py-4 overflow-hidden border border-gold transition-all duration-500 text-gold uppercase tracking-[0.2em] text-sm font-medium">
                     <span class="relative z-10 group-hover:text-obsidian transition-colors duration-500">Explore The Craft</span>
-                    <div class="absolute inset-0 bg-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                    <div class="absolute inset-0 bg-gold transform translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
                 </a>
             </div>
 
-            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 animate-bounce text-white/50">
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 animate-bounce text-gold/50">
                 <span class="material-symbols-outlined text-3xl">expand_more</span>
             </div>
         </div>
@@ -182,7 +186,7 @@
                 <div class="group border border-cream/5 hover:border-gold transition-colors duration-500 bg-obsidian">
                     <div class="aspect-square overflow-hidden relative">
                         <div class="absolute inset-0 bg-obsidian/20 group-hover:bg-transparent z-10 transition-colors duration-500"></div>
-                        <img src="https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?q=80&w=600&auto=format&fit=crop" alt="Peri-Peri" class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700">
+                        <img src="https://images.unsplash.com/photo-1594212848116-641142273187?q=80&w=600&auto=format&fit=crop" alt="Peri-Peri" class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700">
                     </div>
                     <div class="p-8">
                         <div class="flex items-end mb-4">
@@ -237,7 +241,6 @@
 
     <section id="contact-section" class="py-32 px-6 max-w-7xl mx-auto border-t border-gold/10">
         <div class="grid md:grid-cols-2 gap-16 items-center">
-            
             <div class="reveal">
                 <span class="text-gold text-[10px] font-bold tracking-[0.3em] uppercase block mb-6">Our Mission</span>
                 <blockquote class="font-serif text-4xl md:text-5xl text-white leading-snug mb-16">
@@ -270,7 +273,7 @@
                     </div>
                 </div>
                 
-                <a href="https://maps.google.com/?q=burger+restaurants+in+Edinburgh" target="_blank" class="block w-full h-64 bg-obsidian overflow-hidden group relative border border-white/5">
+                <a href="https://www.google.com/maps/search/burger+cafe+Edinburgh/" target="_blank" class="block w-full h-64 bg-obsidian overflow-hidden group relative border border-white/5">
                     <div class="absolute inset-0 bg-gold/10 group-hover:bg-transparent transition-colors duration-500 z-10"></div>
                     <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=800&auto=format&fit=crop" alt="Edinburgh Map" class="w-full h-full object-cover grayscale opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
                     <div class="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -278,7 +281,6 @@
                     </div>
                 </a>
             </div>
-
         </div>
     </section>
 
@@ -290,7 +292,7 @@
                 <a href="#" class="hover:text-gold transition-colors">Instagram</a>
                 <a href="#" class="hover:text-gold transition-colors">LinkedIn</a>
             </div>
-            <div class="font-serif text-2xl text-gold tracking-[0.2em] cursor-pointer" onclick="cinematicSmoothScroll('#hero-section')">TACTIX</div>
+            <a href="#hero-section" class="font-serif text-2xl text-gold tracking-[0.2em] cursor-pointer">TACTIX</a>
             <div class="text-cream/30 text-[10px] font-sans uppercase tracking-[0.2em]">
                 © 2026 TACTIX PRESENCE. BEYOND GASTRONOMY. EDINBURGH, SCOTLAND.
             </div>
@@ -320,10 +322,17 @@
             }
         });
 
-        // 3. Bulletproof Cinematic Smooth Scroll System
+        // 3. Ultra-Responsive Cinematic Smooth Scroll Engine (FIXED)
+        // Starts fast, ends smooth (easeOutQuart equation)
+        function easeOutQuart(t, b, c, d) {
+            t /= d;
+            t--;
+            return -c * (t*t*t*t - 1) + b;
+        }
+
         let isProgrammaticScrolling = false;
 
-        function cinematicSmoothScroll(targetId, duration = 1200) {
+        function cinematicSmoothScroll(targetId, duration = 900) {
             const targetSection = document.getElementById(targetId.replace('#', ''));
             if (!targetSection) return;
 
@@ -334,18 +343,10 @@
             const distance = targetPosition - startPosition;
             let startTime = null;
 
-            // Easing equation for smooth glide
-            function easeInOutCubic(t, b, c, d) {
-                t /= d / 2;
-                if (t < 1) return c / 2 * t * t * t + b;
-                t -= 2;
-                return c / 2 * (t * t * t + 2) + b;
-            }
-
             function animation(currentTime) {
                 if (startTime === null) startTime = currentTime;
                 const timeElapsed = currentTime - startTime;
-                const run = easeInOutCubic(timeElapsed, startPosition, distance, duration);
+                const run = easeOutQuart(timeElapsed, startPosition, distance, duration);
                 
                 window.scrollTo(0, run);
                 
@@ -353,17 +354,15 @@
                     requestAnimationFrame(animation);
                 } else {
                     window.scrollTo(0, targetPosition);
-                    // Free the scrolling lock after a tiny delay and force a sync update
                     setTimeout(() => {
                         isProgrammaticScrolling = false;
-                        window.dispatchEvent(new Event('scroll'));
                     }, 50);
                 }
             }
             requestAnimationFrame(animation);
         }
 
-        // Attach the cinematic scroll to all internal anchor links
+        // Bind custom scroll to all internal links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -374,7 +373,7 @@
             });
         });
 
-        // 4. Highlight Active Link as User Scrolls natively
+        // 4. Highlight Active Link on Scroll
         const observerOptions = { root: null, rootMargin: '-20% 0px -70% 0px', threshold: 0 };
         const navObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -388,86 +387,33 @@
         }, observerOptions);
         document.querySelectorAll('section[id]').forEach(section => navObserver.observe(section));
 
-        // 5. 4K Frame Animation Logic
-        const canvas = document.getElementById('hero-canvas');
-        const ctx    = canvas.getContext('2d');
-        const FRAME_COUNT  = 300; 
-        const FRAME_DIR    = './'; 
-        const FRAME_PREFIX = 'ezgif-frame-';
-        const FRAME_EXT    = '.jpg'; 
-
-        function pad(n) { return String(n).padStart(3, '0'); }
-
-        function resize() {
-            canvas.width = window.innerWidth * (window.devicePixelRatio || 1);
-            canvas.height = window.innerHeight * (window.devicePixelRatio || 1);
-            draw(currentFrame);
-        }
-
-        const frames = new Array(FRAME_COUNT);
-        let currentFrame = 0;
-
-        function loadFrame(i) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    frames[i] = img;
-                    resolve();
-                };
-                img.onerror = () => resolve(); // Ignore errors silently
-                img.src = FRAME_DIR + FRAME_PREFIX + pad(i + 1) + FRAME_EXT;
-            });
-        }
-
-        async function preload() {
-            await loadFrame(0);
-            draw(0);
-            for (let i = 1; i < FRAME_COUNT; i++) {
-                loadFrame(i);
-            }
-        }
-
-        function draw(idx) {
-            const img = frames[idx];
-            if (!img) return;
-
-            const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-            const dw = img.width * scale;
-            const dh = img.height * scale;
-            const dx = (canvas.width - dw) / 2;
-            const dy = (canvas.height - dh) / 2;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, dx, dy, dw, dh);
-        }
-
+        // 5. 4K Video Scrubbing Logic (Fixed)
+        const video = document.getElementById('hero-video');
         const heroSection = document.getElementById('hero-section');
-        
-        window.addEventListener('scroll', () => {
-            // STOP frame calculations during cinematic jump to prevent jitter
-            if (isProgrammaticScrolling) return; 
-            
-            if (window.scrollY > heroSection.offsetHeight) return;
-            
-            const sectionTop = heroSection.offsetTop;
-            const scrollInHero = Math.max(0, window.scrollY - sectionTop);
-            const animScrollLen = heroSection.offsetHeight - window.innerHeight;
-            
-            if (animScrollLen > 0) {
-                const progress = Math.min(1, Math.max(0, scrollInHero / animScrollLen));
-                const frameIdx = Math.round(progress * (FRAME_COUNT - 1));
-                
-                if (frameIdx !== currentFrame) {
-                    currentFrame = frameIdx;
-                    requestAnimationFrame(() => draw(currentFrame));
-                }
-            }
-        }, { passive: true });
+        let rafPending = false;
 
-        window.addEventListener('resize', resize);
-        
-        resize();
-        preload();
+        video.addEventListener('loadedmetadata', function() {
+            window.addEventListener('scroll', () => {
+                if (isProgrammaticScrolling || rafPending) return; 
+                rafPending = true;
+
+                requestAnimationFrame(() => {
+                    rafPending = false;
+                    const sectionTop = heroSection.offsetTop;
+                    const scrollInHero = Math.max(0, window.scrollY - sectionTop);
+                    const animScrollLen = heroSection.offsetHeight - window.innerHeight;
+                    
+                    if (animScrollLen > 0) {
+                        let progress = scrollInHero / animScrollLen;
+                        progress = Math.min(1, Math.max(0, progress));
+                        
+                        if (video.duration) {
+                            video.currentTime = progress * video.duration;
+                        }
+                    }
+                });
+            }, { passive: true });
+        });
     </script>
 </body>
 </html>
