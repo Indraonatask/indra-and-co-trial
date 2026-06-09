@@ -290,7 +290,7 @@
                 <a href="#" class="hover:text-gold transition-colors">Instagram</a>
                 <a href="#" class="hover:text-gold transition-colors">LinkedIn</a>
             </div>
-            <div class="font-serif text-2xl text-gold tracking-[0.2em] cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">TACTIX</div>
+            <div class="font-serif text-2xl text-gold tracking-[0.2em] cursor-pointer" onclick="cinematicSmoothScroll('#hero-section')">TACTIX</div>
             <div class="text-cream/30 text-[10px] font-sans uppercase tracking-[0.2em]">
                 © 2026 TACTIX PRESENCE. BEYOND GASTRONOMY. EDINBURGH, SCOTLAND.
             </div>
@@ -298,7 +298,7 @@
     </footer>
 
     <script>
-        // Reveal Animations Configuration
+        // 1. Reveal Animations (Fade in on scroll)
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -308,7 +308,7 @@
         }, { threshold: 0.15 });
         document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 
-        // Glass Navbar Effect
+        // 2. Glass Navbar & Shadow Effect
         const nav = document.getElementById('main-nav');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
@@ -320,21 +320,27 @@
             }
         });
 
-        // Cinematic Smooth Scroll Mechanics (Fixed Programmatic Clashing)
-        function easeInOutCubic(t, b, c, d) {
-            t /= d / 2;
-            if (t < 1) return c / 2 * t * t * t + b;
-            t -= 2;
-            return c / 2 * (t * t * t + 2) + b;
-        }
-
+        // 3. Bulletproof Cinematic Smooth Scroll System
         let isProgrammaticScrolling = false;
 
-        function smoothScrollTo(targetPosition, duration) {
+        function cinematicSmoothScroll(targetId, duration = 1200) {
+            const targetSection = document.getElementById(targetId.replace('#', ''));
+            if (!targetSection) return;
+
             isProgrammaticScrolling = true;
-            const startPosition = window.pageYOffset;
+            const headerOffset = 90;
+            const targetPosition = targetSection.getBoundingClientRect().top + window.scrollY - headerOffset;
+            const startPosition = window.scrollY;
             const distance = targetPosition - startPosition;
             let startTime = null;
+
+            // Easing equation for smooth glide
+            function easeInOutCubic(t, b, c, d) {
+                t /= d / 2;
+                if (t < 1) return c / 2 * t * t * t + b;
+                t -= 2;
+                return c / 2 * (t * t * t + 2) + b;
+            }
 
             function animation(currentTime) {
                 if (startTime === null) startTime = currentTime;
@@ -347,40 +353,28 @@
                     requestAnimationFrame(animation);
                 } else {
                     window.scrollTo(0, targetPosition);
+                    // Free the scrolling lock after a tiny delay and force a sync update
                     setTimeout(() => {
                         isProgrammaticScrolling = false;
-                        // Synchronize final frame exactly at target position
-                        const sectionTop = heroSection.offsetTop;
-                        const scrollInHero = Math.max(0, window.scrollY - sectionTop);
-                        const animScrollLen = heroSection.offsetHeight - window.innerHeight;
-                        if (animScrollLen > 0 && window.scrollY < heroSection.offsetHeight) {
-                            const progress = Math.min(1, Math.max(0, scrollInHero / animScrollLen));
-                            currentFrame = Math.round(progress * (FRAME_COUNT - 1));
-                            draw(currentFrame);
-                        }
+                        window.dispatchEvent(new Event('scroll'));
                     }, 50);
                 }
             }
             requestAnimationFrame(animation);
         }
 
+        // Attach the cinematic scroll to all internal anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
                 let targetId = this.getAttribute('href');
-                if(!targetId || targetId === '#') return;
-
-                const targetSection = document.getElementById(targetId.replace('#', ''));
-                if (targetSection) {
-                    const headerOffset = 90;
-                    const elementPosition = targetSection.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                    smoothScrollTo(offsetPosition, 1200); 
+                if (targetId && targetId !== '#') {
+                    cinematicSmoothScroll(targetId);
                 }
             });
         });
 
-        // Highlight Active Link configuration
+        // 4. Highlight Active Link as User Scrolls natively
         const observerOptions = { root: null, rootMargin: '-20% 0px -70% 0px', threshold: 0 };
         const navObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -394,15 +388,13 @@
         }, observerOptions);
         document.querySelectorAll('section[id]').forEach(section => navObserver.observe(section));
 
-        // ─── 4K FIXED SCROLLING ENGINE (GITHUB PAGES READY) ───
+        // 5. 4K Frame Animation Logic
         const canvas = document.getElementById('hero-canvas');
         const ctx    = canvas.getContext('2d');
-        
-        // Settings configured to match your actual folder structure precisely
         const FRAME_COUNT  = 300; 
-        const FRAME_DIR    = './'; // Point to root folder instead of parent directory
+        const FRAME_DIR    = './'; 
         const FRAME_PREFIX = 'ezgif-frame-';
-        const FRAME_EXT    = '.jpg'; // Correct asset extension signature
+        const FRAME_EXT    = '.jpg'; 
 
         function pad(n) { return String(n).padStart(3, '0'); }
 
@@ -422,21 +414,14 @@
                     frames[i] = img;
                     resolve();
                 };
-                img.onerror = () => {
-                    console.error("Critical: Frame missing runtime load at path:", img.src);
-                    resolve();
-                };
-                // Prepend explicit current relative route context for cross-origin deployment
+                img.onerror = () => resolve(); // Ignore errors silently
                 img.src = FRAME_DIR + FRAME_PREFIX + pad(i + 1) + FRAME_EXT;
             });
         }
 
         async function preload() {
-            // Guarantee immediate delivery of initial interactive point paint
             await loadFrame(0);
             draw(0);
-            
-            // Asynchronously load sequence assets completely onto pipeline memory
             for (let i = 1; i < FRAME_COUNT; i++) {
                 loadFrame(i);
             }
@@ -457,8 +442,11 @@
         }
 
         const heroSection = document.getElementById('hero-section');
+        
         window.addEventListener('scroll', () => {
-            if (isProgrammaticScrolling) return; // Prevent render frame locks while smooth shifting target
+            // STOP frame calculations during cinematic jump to prevent jitter
+            if (isProgrammaticScrolling) return; 
+            
             if (window.scrollY > heroSection.offsetHeight) return;
             
             const sectionTop = heroSection.offsetTop;
@@ -478,7 +466,6 @@
 
         window.addEventListener('resize', resize);
         
-        // Initialize Core Graphics Engine pipeline
         resize();
         preload();
     </script>
