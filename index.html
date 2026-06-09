@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"> <head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tactix Presence | Edinburgh</title>
@@ -103,11 +104,7 @@
 
     <section id="hero-section" style="height: calc(300vh); position: relative;">
         <div style="position: sticky; top: 0; height: 100vh; width: 100%; overflow: hidden; background: #080A0F;">
-            <video id="hero-video" 
-                   src="Burger_assembly_slow_motion_202606071559.mp4" 
-                   class="absolute top-0 left-0 w-full h-full object-cover" 
-                   muted playsinline preload="auto" style="will-change: transform;">
-            </video>
+            <canvas id="hero-canvas" class="absolute top-0 left-0 w-full h-full object-cover"></canvas>
             
             <div class="absolute inset-0 bg-gradient-to-b from-obsidian/60 via-obsidian/20 to-obsidian/90 pointer-events-none"></div>
             
@@ -241,6 +238,7 @@
 
     <section id="contact-section" class="py-32 px-6 max-w-7xl mx-auto border-t border-gold/10">
         <div class="grid md:grid-cols-2 gap-16 items-center">
+            
             <div class="reveal">
                 <span class="text-gold text-[10px] font-bold tracking-[0.3em] uppercase block mb-6">Our Mission</span>
                 <blockquote class="font-serif text-4xl md:text-5xl text-white leading-snug mb-16">
@@ -281,6 +279,7 @@
                     </div>
                 </a>
             </div>
+
         </div>
     </section>
 
@@ -292,7 +291,7 @@
                 <a href="#" class="hover:text-gold transition-colors">Instagram</a>
                 <a href="#" class="hover:text-gold transition-colors">LinkedIn</a>
             </div>
-            <a href="#hero-section" class="font-serif text-2xl text-gold tracking-[0.2em] cursor-pointer">TACTIX</a>
+            <div class="font-serif text-2xl text-gold tracking-[0.2em] cursor-pointer">TACTIX</div>
             <div class="text-cream/30 text-[10px] font-sans uppercase tracking-[0.2em]">
                 © 2026 TACTIX PRESENCE. BEYOND GASTRONOMY. EDINBURGH, SCOTLAND.
             </div>
@@ -300,7 +299,7 @@
     </footer>
 
     <script>
-        // 1. Reveal Animations (Fade in on scroll)
+        // 1. Reveal Animations
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -322,15 +321,14 @@
             }
         });
 
-        // 3. Ultra-Responsive Cinematic Smooth Scroll Engine (FIXED)
-        // Starts fast, ends smooth (easeOutQuart equation)
+        // 3. Bulletproof Cinematic Smooth Scroll System
+        let isProgrammaticScrolling = false;
+
         function easeOutQuart(t, b, c, d) {
             t /= d;
             t--;
             return -c * (t*t*t*t - 1) + b;
         }
-
-        let isProgrammaticScrolling = false;
 
         function cinematicSmoothScroll(targetId, duration = 900) {
             const targetSection = document.getElementById(targetId.replace('#', ''));
@@ -356,13 +354,21 @@
                     window.scrollTo(0, targetPosition);
                     setTimeout(() => {
                         isProgrammaticScrolling = false;
+                        // Synchronize final frame explicitly
+                        const sectionTop = heroSection.offsetTop;
+                        const scrollInHero = Math.max(0, window.scrollY - sectionTop);
+                        const animScrollLen = heroSection.offsetHeight - window.innerHeight;
+                        if (animScrollLen > 0 && window.scrollY < heroSection.offsetHeight) {
+                            const progress = Math.min(1, Math.max(0, scrollInHero / animScrollLen));
+                            currentFrame = Math.round(progress * (FRAME_COUNT - 1));
+                            draw(currentFrame);
+                        }
                     }, 50);
                 }
             }
             requestAnimationFrame(animation);
         }
 
-        // Bind custom scroll to all internal links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -387,33 +393,85 @@
         }, observerOptions);
         document.querySelectorAll('section[id]').forEach(section => navObserver.observe(section));
 
-        // 5. 4K Video Scrubbing Logic (Fixed)
-        const video = document.getElementById('hero-video');
+        // 5. GitHub Ready Frame Animation (Canvas)
+        const canvas = document.getElementById('hero-canvas');
+        const ctx    = canvas.getContext('2d');
+        const FRAME_COUNT  = 96; 
+        const FRAME_DIR    = './'; 
+        const FRAME_PREFIX = 'ezgif-frame-';
+        const FRAME_EXT    = '.jpg'; 
+
+        function pad(n) { return String(n).padStart(3, '0'); }
+
+        function resize() {
+            canvas.width = window.innerWidth * (window.devicePixelRatio || 1);
+            canvas.height = window.innerHeight * (window.devicePixelRatio || 1);
+            draw(currentFrame);
+        }
+
+        const frames = new Array(FRAME_COUNT);
+        let currentFrame = 0;
+
+        function loadFrame(i) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    frames[i] = img;
+                    resolve();
+                };
+                img.onerror = () => resolve(); 
+                img.src = FRAME_DIR + FRAME_PREFIX + pad(i + 1) + FRAME_EXT;
+            });
+        }
+
+        async function preload() {
+            await loadFrame(0);
+            draw(0);
+            for (let i = 1; i < FRAME_COUNT; i++) {
+                loadFrame(i);
+            }
+        }
+
+        function draw(idx) {
+            const img = frames[idx];
+            if (!img) return;
+
+            const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+            const dw = img.width * scale;
+            const dh = img.height * scale;
+            const dx = (canvas.width - dw) / 2;
+            const dy = (canvas.height - dh) / 2;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, dx, dy, dw, dh);
+        }
+
         const heroSection = document.getElementById('hero-section');
-        let rafPending = false;
+        
+        window.addEventListener('scroll', () => {
+            if (isProgrammaticScrolling) return; 
+            
+            if (window.scrollY > heroSection.offsetHeight) return;
+            
+            const sectionTop = heroSection.offsetTop;
+            const scrollInHero = Math.max(0, window.scrollY - sectionTop);
+            const animScrollLen = heroSection.offsetHeight - window.innerHeight;
+            
+            if (animScrollLen > 0) {
+                const progress = Math.min(1, Math.max(0, scrollInHero / animScrollLen));
+                const frameIdx = Math.round(progress * (FRAME_COUNT - 1));
+                
+                if (frameIdx !== currentFrame) {
+                    currentFrame = frameIdx;
+                    requestAnimationFrame(() => draw(currentFrame));
+                }
+            }
+        }, { passive: true });
 
-        video.addEventListener('loadedmetadata', function() {
-            window.addEventListener('scroll', () => {
-                if (isProgrammaticScrolling || rafPending) return; 
-                rafPending = true;
-
-                requestAnimationFrame(() => {
-                    rafPending = false;
-                    const sectionTop = heroSection.offsetTop;
-                    const scrollInHero = Math.max(0, window.scrollY - sectionTop);
-                    const animScrollLen = heroSection.offsetHeight - window.innerHeight;
-                    
-                    if (animScrollLen > 0) {
-                        let progress = scrollInHero / animScrollLen;
-                        progress = Math.min(1, Math.max(0, progress));
-                        
-                        if (video.duration) {
-                            video.currentTime = progress * video.duration;
-                        }
-                    }
-                });
-            }, { passive: true });
-        });
+        window.addEventListener('resize', resize);
+        
+        resize();
+        preload();
     </script>
 </body>
 </html>
